@@ -5,34 +5,35 @@
  * scrolls to anchors from navigation,
  * and highlights section in viewport upon scrolling.
  *
- * Dependencies: None
- *
- * JS Version: ES2015/ES6
- *
- * JS Standard: ESlint
- *
  */
 
-/**
- * Define Global Variables
- *
- */
 const sections = document.querySelectorAll('section')
 const navBarList = document.getElementById('navbar__list')
 
+// map of section id to section
 let sectionMap = new Map()
+
+// map of section id to menu item
 let menuItemMap = new Map()
 
-/**
- * End Global Variables
- * Start Helper Functions
- *
- *
- */
+const intersectionObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        const id = entry.target.id
+        const section = sectionMap.get(id)
+        const menuItem = menuItemMap.get(id)
+        if (entry.isIntersecting) {
+            section.classList.add('active')
+            menuItem.classList.add('active')
+        } else {
+            section.classList.remove('active')
+            menuItem.classList.remove('active')
+        }
+    })
+}, {threshold: .6})
+
 function menuListItemHtml(id, name) {
     return `<li ><a  class="menu__link" href="#${id}">${name}</a></li>`
 }
-
 
 function buildNav() {
     let html = ''
@@ -49,47 +50,16 @@ function setUpMenuItemMap() {
     })
 }
 
-/**
- * End Helper Functions
- * Begin Main Functions
- *
- */
+function setUpSectionMap() {
+    sections.forEach(section => sectionMap.set(section.id, section))
+}
 
-// build the nav
+function observeInteractions() {
+    sections.forEach(section => intersectionObserver.observe(section))
+}
+
 buildNav()
 setUpMenuItemMap()
-sections.forEach(section => sectionMap.set(section.id, section))
-
-// Add class 'active' to section when near top of viewport
-const intersectionObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        const id = entry.target.id
-        const section = sectionMap.get(id)
-        const menuItem = menuItemMap.get(id)
-        if (entry.isIntersecting) {
-            section.classList.add('active')
-            menuItem.classList.add('active')
-        } else {
-            section.classList.remove('active')
-            menuItem.classList.remove('active')
-        }
-    })
-}, {threshold: .6})
-
-sections.forEach(section => intersectionObserver.observe(section))
-// Scroll to anchor ID using scrollTO event
-
-
-/**
- * End Main Functions
- * Begin Events
- *
- */
-
-// Build menu
-
-// Scroll to section on link click
-
-// Set sections as active
-
+setUpSectionMap()
+observeInteractions()
 
