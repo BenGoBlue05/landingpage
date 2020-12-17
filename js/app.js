@@ -36,21 +36,38 @@ function menuListItemHtml(id, name) {
 }
 
 function buildNav() {
+    // create html for menu list items that correspond to section for navigating to on click
     let html = ''
     sections.forEach(section => html += menuListItemHtml(section.id, section.dataset.nav))
     navBarList.insertAdjacentHTML('afterbegin', html)
+
+    populateSectionMap()
+    setUpMenuItems()
 }
 
-function setUpMenuItemMap() {
+function setUpMenuItems() {
     const menuItems = navBarList.querySelectorAll('a')
     menuItems.forEach(item => {
         const href = item.getAttribute('href')
-        const id = href.slice(1)
-        menuItemMap.set(id, item)
+
+        // remove the '#' from href
+        const sectionId = href.slice(1)
+
+        // populate map of section id to corresponding menu item
+        menuItemMap.set(sectionId, item)
+        item.addEventListener('click', e => {
+            e.preventDefault()
+            const target = e.target
+            if (target instanceof HTMLElement && target.hasAttribute('href')) {
+                const sectionId = target.getAttribute('href').slice(1)
+                sectionMap.get(sectionId).scrollIntoView({behavior: "smooth"})
+            }
+        })
     })
 }
 
-function setUpSectionMap() {
+// populates map of section id to section
+function populateSectionMap() {
     sections.forEach(section => sectionMap.set(section.id, section))
 }
 
@@ -59,7 +76,5 @@ function observeInteractions() {
 }
 
 buildNav()
-setUpMenuItemMap()
-setUpSectionMap()
 observeInteractions()
 
